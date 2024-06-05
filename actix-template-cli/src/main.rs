@@ -4,6 +4,7 @@ use commands::{configure::ActixTemplateProfile, notes, orgs};
 
 mod commands;
 mod errors;
+mod relations;
 
 #[derive(Parser)]
 #[command(author, version)]
