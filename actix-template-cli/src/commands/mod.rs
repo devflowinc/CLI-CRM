@@ -1,8 +1,9 @@
 pub mod api_key;
 pub mod configure;
+pub mod contacts;
+pub mod deals;
 pub mod login_server;
 pub mod notes;
 pub mod orgs;
 pub mod profile;
 pub mod tasks;
-pub mod deals;

@@ -1,6 +1,7 @@
 use clap::{Args, Parser, Subcommand};
 use commands::{
     configure::ActixTemplateProfile,
+    contacts::{self, ContactCommands},
     deals::{self, DealCommands},
     notes::{self, NoteCommands},
     orgs::{self, OrgCommands},
@@ -50,6 +51,9 @@ enum Commands {
     /// Manage Deals
     #[command(subcommand)]
     Deals(DealCommands),
+
+    #[command(subcommand)]
+    Contacts(ContactCommands),
 }
 
 #[derive(Subcommand)]
@@ -182,6 +186,24 @@ async fn main() {
             }
             DealCommands::View(view_args) => deals::view_deal_cmd(settings, view_args.id).await,
             DealCommands::Edit(edit_args) => deals::edit_deal_cmd(settings, edit_args.id).await,
+            DealCommands::ManageContacts(mng_contact_option) => {
+                deals::manage_contacts_cmd(settings, mng_contact_option).await
+            }
+            DealCommands::List => deals::list_deals_cmd(settings).await,
+        },
+
+        Some(Commands::Contacts(contact_option)) => match contact_option {
+            ContactCommands::Create => contacts::create_contact_cmd(settings).await,
+            ContactCommands::Delete(delete_args) => {
+                contacts::delete_contact_cmd(settings, delete_args.id).await
+            }
+            ContactCommands::Edit(edit_args) => {
+                contacts::edit_contact_cmd(settings, edit_args.id).await
+            }
+            ContactCommands::View(view_args) => {
+                contacts::view_contact_cmd(settings, view_args.id).await
+            }
+            ContactCommands::List => contacts::list_contacts_cmd(settings).await,
         },
 
         _ => {
