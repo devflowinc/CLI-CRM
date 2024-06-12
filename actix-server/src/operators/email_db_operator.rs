@@ -65,7 +65,7 @@ pub async fn update_email_query(
     Ok(updated_email)
 }
 
-pub async fn get_email_by_id(
+pub async fn get_email_by_id_query(
     email_id: PrefixedUuid<EmailPrefix>,
     pg_pool: web::Data<PgPool>,
 ) -> Result<Email, ServiceError> {

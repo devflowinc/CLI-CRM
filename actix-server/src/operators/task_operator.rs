@@ -66,7 +66,7 @@ pub async fn update_task_query(
     Ok(updated_task)
 }
 
-pub async fn get_task_by_id(
+pub async fn get_task_by_id_query(
     task_id: PrefixedUuid<TaskPrefix>,
     pg_pool: web::Data<PgPool>,
 ) -> Result<Task, ServiceError> {

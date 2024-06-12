@@ -108,17 +108,17 @@ pub async fn get_user_by_email_query(
     Ok(user)
 }
 
-pub async fn list_users_by_task_id(
+pub async fn list_users_by_task_id_query(
     task_id: PrefixedUuid<TaskPrefix>,
     pg_pool: web::Data<PgPool>,
-    offset: Option<i64>,
+    offset: Option<PrefixedUuid<UserPrefix>>,
     limit: Option<i64>,
 ) -> Result<(Vec<User>, i64), ServiceError> {
     use crate::data::schema::tasks::dsl as tasks_columns;
     use crate::data::schema::users::dsl as users_columns;
     let mut conn = pg_pool.get().await.unwrap();
     let limit = limit.unwrap_or(10);
-    let offset = offset.unwrap_or(0);
+    let offset = offset.unwrap_or(PrefixedUuid::zero_id(UserPrefix));
     let task = tasks_columns::tasks
         .filter(tasks_columns::id.eq(task_id))
         .first::<Task>(&mut conn)
@@ -127,8 +127,9 @@ pub async fn list_users_by_task_id(
     let users = TaskUser::belonging_to(&task)
         .inner_join(users_columns::users)
         .select(User::as_select())
+        .filter(users_columns::id.gt(offset))
+        .order((users_columns::updated_at, users_columns::id))
         .limit(limit)
-        .offset(offset)
         .load::<User>(&mut conn)
         .await
         .map_err(|_| ServiceError::InternalServerError("Error fetching user".to_string()))?;

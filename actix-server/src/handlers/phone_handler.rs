@@ -2,7 +2,7 @@ use super::auth_handler::OwnerMember;
 use crate::{
     data::models::PgPool,
     operators::phone_operator::{
-        create_phone_query, delete_phone_query, get_phone_by_id, update_phone_query,
+        create_phone_query, delete_phone_query, get_phone_by_id_query, update_phone_query,
     },
     prefixes::{PhonePrefix, PrefixedUuid},
 };
@@ -95,7 +95,7 @@ pub async fn get_phone(
     pg_pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, actix_web::Error> {
     let phone_id = path.into_inner();
-    match get_phone_by_id(phone_id, pg_pool).await {
+    match get_phone_by_id_query(phone_id, pg_pool).await {
         Ok(phone) => Ok(HttpResponse::Ok().json(phone)),
         Err(_) => Ok(HttpResponse::NotFound().finish()),
     }

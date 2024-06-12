@@ -2,7 +2,7 @@ use super::auth_handler::OwnerMember;
 use crate::{
     data::models::PgPool,
     operators::link_operator::{
-        create_link_query, delete_link_query, get_link_by_id, update_link_query,
+        create_link_query, delete_link_query, get_link_by_id_query, update_link_query,
     },
     prefixes::{LinkPrefix, PrefixedUuid},
 };
@@ -95,7 +95,7 @@ pub async fn get_link(
     pg_pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, actix_web::Error> {
     let link_id = path.into_inner();
-    match get_link_by_id(link_id, pg_pool).await {
+    match get_link_by_id_query(link_id, pg_pool).await {
         Ok(link) => Ok(HttpResponse::Ok().json(link)),
         Err(_) => Ok(HttpResponse::NotFound().finish()),
     }

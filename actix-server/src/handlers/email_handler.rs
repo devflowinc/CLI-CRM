@@ -2,7 +2,7 @@ use super::auth_handler::OwnerMember;
 use crate::{
     data::models::PgPool,
     operators::email_db_operator::{
-        create_email_query, delete_email_query, get_email_by_id, update_email_query,
+        create_email_query, delete_email_query, get_email_by_id_query, update_email_query,
     },
     prefixes::{EmailPrefix, PrefixedUuid},
 };
@@ -95,7 +95,7 @@ pub async fn get_email(
     pg_pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, actix_web::Error> {
     let email_id = path.into_inner();
-    match get_email_by_id(email_id, pg_pool).await {
+    match get_email_by_id_query(email_id, pg_pool).await {
         Ok(email) => Ok(HttpResponse::Ok().json(email)),
         Err(_) => Ok(HttpResponse::NotFound().finish()),
     }
