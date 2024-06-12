@@ -1,8 +1,9 @@
 use super::auth_handler::OwnerMember;
 use crate::{
-    data::models::PgPool,
+    data::models::{Contact, PgPool},
     operators::contact_operator::{
-        create_contact_query, delete_contact_query, get_contact_by_id, update_contact_query,
+        create_contact_query, delete_contact_query, get_contact_by_id_query,
+        get_contacts_by_org_id_query, update_contact_query,
     },
     prefixes::{ContactPrefix, PrefixedUuid},
 };
@@ -102,7 +103,7 @@ pub async fn get_contact(
     pg_pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, actix_web::Error> {
     let contact_id = path.into_inner();
-    match get_contact_by_id(contact_id, pg_pool).await {
+    match get_contact_by_id_query(contact_id, pg_pool).await {
         Ok(contact) => Ok(HttpResponse::Ok().json(contact)),
         Err(_) => Ok(HttpResponse::NotFound().finish()),
     }
@@ -148,4 +149,46 @@ pub async fn update_contact(
     )
     .await?;
     Ok(HttpResponse::Ok().json(contact))
+}
+
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct ContactList {
+    pub contacts: Vec<Contact>,
+    pub total: i64,
+}
+
+#[derive(Debug, Serialize, Deserialize, ToSchema)]
+pub struct ListContactsQuery {
+    pub limit: Option<i64>,
+    pub offset: Option<String>,
+}
+
+#[utoipa::path(
+  get,
+  path = "/contacts/list",
+  context_path = "/api",
+  tag = "contacts",
+  responses(
+      (status = 200, description = "JSON object representing the requested contact", body = ContactList),
+      (status = 401, description = "Service error relating to authentication status of the user", body = ErrorRespPayload),
+  ),
+  security(
+      ("ApiKey" = ["readonly"]),
+  ),
+  params(
+    ("limit" = Option<i64>, Query, description = "The number of contacts to return"),
+    ("offset" = Option<String>, Query, description = "The offset to start from"),
+    ("Organization" = String, Header, description = "The org id to use for the request"),
+  )
+)]
+#[tracing::instrument(skip(pg_pool))]
+pub async fn list_contacts(
+    org_user: OwnerMember,
+    query: web::Query<ListContactsQuery>,
+    pg_pool: web::Data<PgPool>,
+) -> Result<HttpResponse, actix_web::Error> {
+    let offset = PrefixedUuid::<ContactPrefix>::from_optional_str(query.offset.clone())?;
+    let (contacts, total) =
+        get_contacts_by_org_id_query(org_user.org_id, pg_pool, query.limit, offset).await?;
+    Ok(HttpResponse::Ok().json(ContactList { contacts, total }))
 }
