@@ -12,29 +12,23 @@ use crate::models;
 
 /// 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
-pub enum TaskResType {
-    #[serde(rename = "Link")]
-    Link,
-    #[serde(rename = "Deal")]
-    Deal,
-    #[serde(rename = "User")]
-    User,
+pub enum DealResType {
+    #[serde(rename = "Contact")]
+    Contact,
 
 }
 
-impl ToString for TaskResType {
+impl ToString for DealResType {
     fn to_string(&self) -> String {
         match self {
-            Self::Link => String::from("Link"),
-            Self::Deal => String::from("Deal"),
-            Self::User => String::from("User"),
+            Self::Contact => String::from("Contact"),
         }
     }
 }
 
-impl Default for TaskResType {
-    fn default() -> TaskResType {
-        Self::Link
+impl Default for DealResType {
+    fn default() -> DealResType {
+        Self::Contact
     }
 }
 

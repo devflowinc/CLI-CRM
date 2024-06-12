@@ -40,10 +40,15 @@ Class | Method | HTTP request | Description
 *ContactsApi* | [**create_contact**](docs/ContactsApi.md#create_contact) | **POST** /api/contacts | 
 *ContactsApi* | [**delete_contact**](docs/ContactsApi.md#delete_contact) | **DELETE** /api/contacts/{contact_id} | 
 *ContactsApi* | [**get_contact**](docs/ContactsApi.md#get_contact) | **GET** /api/contacts/{contact_id} | 
+*ContactsApi* | [**list_contacts**](docs/ContactsApi.md#list_contacts) | **GET** /api/contacts/list | 
 *ContactsApi* | [**update_contact**](docs/ContactsApi.md#update_contact) | **PUT** /api/contacts/{contact_id} | 
 *DealsApi* | [**create_deal**](docs/DealsApi.md#create_deal) | **POST** /api/deals | 
+*DealsApi* | [**create_deal_resource**](docs/DealsApi.md#create_deal_resource) | **POST** /api/deals/{deal_id}/{resource_type}/{resource_id} | 
 *DealsApi* | [**delete_deal**](docs/DealsApi.md#delete_deal) | **DELETE** /api/deals/{deal_id} | 
+*DealsApi* | [**delete_deal_resource**](docs/DealsApi.md#delete_deal_resource) | **DELETE** /api/deals/{deal_id}/{resource_type}/{resource_id} | 
 *DealsApi* | [**get_deal**](docs/DealsApi.md#get_deal) | **GET** /api/deals/{deal_id} | 
+*DealsApi* | [**list_deal_by_org**](docs/DealsApi.md#list_deal_by_org) | **GET** /api/deals/list/org | 
+*DealsApi* | [**list_deal_resource**](docs/DealsApi.md#list_deal_resource) | **GET** /api/deals/{deal_id}/{resource_type} | 
 *DealsApi* | [**update_deal**](docs/DealsApi.md#update_deal) | **PUT** /api/deals/{deal_id} | 
 *EmailsApi* | [**create_email**](docs/EmailsApi.md#create_email) | **POST** /api/emails | 
 *EmailsApi* | [**delete_email**](docs/EmailsApi.md#delete_email) | **DELETE** /api/emails/{email_id} | 
@@ -84,6 +89,7 @@ Class | Method | HTTP request | Description
 
  - [Company](docs/Company.md)
  - [Contact](docs/Contact.md)
+ - [ContactList](docs/ContactList.md)
  - [CreateApiKeyReqPayload](docs/CreateApiKeyReqPayload.md)
  - [CreateApiKeyRespPayload](docs/CreateApiKeyRespPayload.md)
  - [CreateCompanyReqPayload](docs/CreateCompanyReqPayload.md)
@@ -96,6 +102,13 @@ Class | Method | HTTP request | Description
  - [CreatePhoneReqPayload](docs/CreatePhoneReqPayload.md)
  - [CreateTaskReqPayload](docs/CreateTaskReqPayload.md)
  - [Deal](docs/Deal.md)
+ - [DealContact](docs/DealContact.md)
+ - [DealResType](docs/DealResType.md)
+ - [DealResource](docs/DealResource.md)
+ - [DealResourceList](docs/DealResourceList.md)
+ - [DealResourceListOneOf](docs/DealResourceListOneOf.md)
+ - [DealResourceListWithPagination](docs/DealResourceListWithPagination.md)
+ - [DealResourceOneOf](docs/DealResourceOneOf.md)
  - [Email](docs/Email.md)
  - [ErrorRespPayload](docs/ErrorRespPayload.md)
  - [GetTaskResourceQuery](docs/GetTaskResourceQuery.md)
@@ -103,6 +116,9 @@ Class | Method | HTTP request | Description
  - [InvitationData](docs/InvitationData.md)
  - [InvitationResponse](docs/InvitationResponse.md)
  - [Link](docs/Link.md)
+ - [ListContactsQuery](docs/ListContactsQuery.md)
+ - [ListDealByOrgRespBody](docs/ListDealByOrgRespBody.md)
+ - [ListDealResourceQuery](docs/ListDealResourceQuery.md)
  - [Note](docs/Note.md)
  - [Org](docs/Org.md)
  - [Phone](docs/Phone.md)

@@ -11,15 +11,15 @@
 use crate::models;
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
-pub struct TaskResourceListOneOf1 {
-    #[serde(rename = "Deal")]
-    pub deal: Vec<models::Deal>,
+pub struct DealResourceListOneOf {
+    #[serde(rename = "Contact")]
+    pub contact: Vec<models::Contact>,
 }
 
-impl TaskResourceListOneOf1 {
-    pub fn new(deal: Vec<models::Deal>) -> TaskResourceListOneOf1 {
-        TaskResourceListOneOf1 {
-            deal,
+impl DealResourceListOneOf {
+    pub fn new(contact: Vec<models::Contact>) -> DealResourceListOneOf {
+        DealResourceListOneOf {
+            contact,
         }
     }
 }

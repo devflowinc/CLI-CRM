@@ -12,7 +12,7 @@ use crate::models;
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct TaskResourceOneOf2 {
-    #[serde(rename = "user")]
+    #[serde(rename = "User")]
     pub user: Box<models::TaskUser>,
 }
 
