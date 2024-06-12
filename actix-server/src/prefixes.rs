@@ -8,6 +8,8 @@ use diesel::{deserialize::FromSql, pg::PgValue, serialize::ToSql};
 use serde::{Deserialize, Deserializer, Serialize};
 use utoipa::{openapi::ObjectBuilder, ToSchema};
 
+use crate::errors::ServiceError;
+
 pub trait Prefix:
     Clone
     + Debug
@@ -73,14 +75,16 @@ impl<P: Prefix> Serialize for PrefixedUuid<P> {
 }
 
 impl<P: Prefix> FromStr for PrefixedUuid<P> {
-    type Err = PrefixParseError;
+    type Err = ServiceError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let parts: Vec<&str> = s.split('-').collect();
         // Combine all parts except the first
         let rest = parts[1..].join("-");
 
-        let parsed_uuid = rest.parse().map_err(|_| PrefixParseError)?;
+        let parsed_uuid = rest
+            .parse()
+            .map_err(|_| ServiceError::BadRequest("Invalid UUID".to_string()))?;
 
         Ok(PrefixedUuid {
             prefix: P::default(),
@@ -108,6 +112,20 @@ impl<P: Prefix> PrefixedUuid<P> {
         PrefixedUuid {
             prefix,
             id: uuid::Uuid::new_v4(),
+        }
+    }
+
+    pub fn zero_id(prefix: P) -> Self {
+        PrefixedUuid {
+            prefix,
+            id: uuid::Uuid::nil(),
+        }
+    }
+
+    pub fn from_optional_str(id: Option<String>) -> Result<Option<PrefixedUuid<P>>, ServiceError> {
+        match id {
+            None => Ok(None),
+            Some(s) => Ok(Some(PrefixedUuid::<P>::from_str(&s)?)),
         }
     }
 }
@@ -147,9 +165,6 @@ impl<P: Prefix + Default> FromSql<diesel::sql_types::Uuid, diesel::pg::Pg> for P
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
-pub struct PrefixParseError;
-
 macro_rules! impl_prefix {
     ($name:ident, $prefix:expr) => {
         #[derive(Clone, Debug, Serialize, Deserialize, Default, Copy, PartialEq, Eq, ToSchema)]
@@ -162,13 +177,13 @@ macro_rules! impl_prefix {
         }
 
         impl FromStr for $name {
-            type Err = PrefixParseError;
+            type Err = ServiceError;
 
             fn from_str(s: &str) -> Result<Self, Self::Err> {
                 if s == $prefix {
                     Ok($name)
                 } else {
-                    Err(PrefixParseError)
+                    Err(ServiceError::BadRequest("Invalid prefix".to_string()))
                 }
             }
         }
@@ -183,6 +198,7 @@ impl_prefix!(UserPrefix, "user");
 impl_prefix!(NotePrefix, "note");
 impl_prefix!(ContactPrefix, "contact");
 impl_prefix!(DealPrefix, "deal");
+impl_prefix!(DealContactPrefix, "dealcontact");
 impl_prefix!(LinkPrefix, "link");
 impl_prefix!(EmailPrefix, "email");
 impl_prefix!(PhonePrefix, "phone");
