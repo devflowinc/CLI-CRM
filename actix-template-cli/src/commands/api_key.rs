@@ -13,8 +13,7 @@ pub async fn generate_api_key(
     let name = if api_key_data.name.is_none() {
         inquire::Text::new("Enter a name for the API Key:")
             .with_help_message("This name will help you identify the API Key in the future.")
-            .prompt()
-            .unwrap()
+            .prompt()?
     } else {
         api_key_data.name.unwrap()
     };

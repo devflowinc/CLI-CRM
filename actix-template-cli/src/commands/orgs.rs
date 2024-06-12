@@ -46,7 +46,7 @@ pub struct InviteToOrg {
 pub async fn create_org(
     settings: ActixTemplateConfiguration,
     name: Option<String>,
-) -> Result<(), DefaultError> {
+) -> Result<Org, DefaultError> {
     let name = if name.is_none() {
         inquire::Text::new("Enter a name for the organization:").prompt()?
     } else {
@@ -69,7 +69,7 @@ pub async fn create_org(
         CreateOrgSuccess::Status201(org) => {
             println!("\nOrganization created successfully!\n");
             println!("Name: {}", org.name);
-            return Ok(());
+            return Ok(org);
         }
         CreateOrgSuccess::UnknownValue(_) => {
             return Err(DefaultError::new(
@@ -84,6 +84,7 @@ pub async fn create_org(
 pub enum OrgSelectError {
     NoOrgs,
     OrgFetchFailure,
+    CancelInput,
 }
 
 #[derive(Debug)]
@@ -133,38 +134,30 @@ pub async fn select_from_my_orgs(
 
     let ans = Select::new(prompt, options)
         .prompt()
-        .expect("Prompt is configured correctly");
+        .map_err(|_| OrgSelectError::CancelInput)?;
 
     Ok(ans.org)
 }
 
 pub async fn delete_org(settings: ActixTemplateConfiguration) -> Result<(), DefaultError> {
     // Fetch the list of orgs
-    let selected = match select_from_my_orgs(
+    let selected = select_from_my_orgs(
         &settings.clone().into(),
         "Select an organization to delete:",
     )
     .await
-    {
-        Ok(ans) => ans,
-        Err(OrgSelectError::NoOrgs) => {
-            println!("No organizations found.");
-            std::process::exit(0);
-        }
-        _ => {
-            eprintln!("Error fetching organizations.");
-            std::process::exit(1);
-        }
-    };
+    .map_err(|e| match e {
+        OrgSelectError::NoOrgs => DefaultError::new("No organizations found."),
+        OrgSelectError::CancelInput => DefaultError::new("Deletion cancelled."),
+        _ => DefaultError::new("Error fetching organizations."),
+    })?;
 
     let ans = Confirm::new(format!("Are you sure you want to delete {}?", selected.name).as_str())
         .with_default(false)
-        .prompt()
-        .expect("Prompt is configured correctly");
+        .prompt()?;
 
     if ans == false {
-        println!("Deletion cancelled.");
-        std::process::exit(0);
+        return Err(DefaultError::new("Deletion cancelled."));
     }
 
     match actix_web_starter_client::apis::orgs_api::delete_org(
@@ -175,16 +168,13 @@ pub async fn delete_org(settings: ActixTemplateConfiguration) -> Result<(), Defa
         },
     )
     .await
-    .map_err(|e| {
-        eprintln!("Error deleting organization: {:?}", e);
-    })
-    .unwrap()
+    .map_err(|e| DefaultError::new(format!("Error deleting organization: {:?}", e).as_str()))?
     .status
     .is_success()
     {
         true => {
             println!("Organization deleted successfully.");
-            std::process::exit(0);
+            Ok(())
         }
         false => Err(DefaultError::new("Error deleting organization.")),
     }

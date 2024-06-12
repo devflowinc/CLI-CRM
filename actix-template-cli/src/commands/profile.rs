@@ -8,15 +8,17 @@ pub fn switch_profile(
     profile_data: SwitchProfile,
     profiles: Vec<ActixTemplateProfileInner>,
 ) -> Result<(), DefaultError> {
-    let profile_name = profile_data.profile_name.unwrap_or_else(|| {
-        let profile_name = inquire::Select::new(
-            "Select a profile to switch to:",
-            profiles.iter().map(|p| p.name.clone()).collect(),
-        )
-        .prompt()
-        .unwrap();
-        profile_name
-    });
+    let profile_name = match profile_data.profile_name {
+        Some(profile_name) => Ok::<String, DefaultError>(profile_name),
+        None => {
+            let profile_name = inquire::Select::new(
+                "Select a profile to switch to:",
+                profiles.iter().map(|p| p.name.clone()).collect(),
+            )
+            .prompt()?;
+            Ok(profile_name)
+        }
+    }?;
 
     profiles
         .iter()
@@ -60,15 +62,17 @@ pub fn delete_profile(
     profile_data: DeleteProfile,
     profiles: Vec<ActixTemplateProfileInner>,
 ) -> Result<(), DefaultError> {
-    let profile_name = profile_data.profile_name.unwrap_or_else(|| {
-        let profile_name = inquire::Select::new(
-            "Select a profile to delete:",
-            profiles.iter().map(|p| p.name.clone()).collect(),
-        )
-        .prompt()
-        .unwrap();
-        profile_name
-    });
+    let profile_name = match profile_data.profile_name {
+        Some(profile_name) => Ok::<String, DefaultError>(profile_name),
+        None => {
+            let profile_name = inquire::Select::new(
+                "Select a profile to delete:",
+                profiles.iter().map(|p| p.name.clone()).collect(),
+            )
+            .prompt()?;
+            Ok(profile_name)
+        }
+    }?;
 
     let profile = profiles
         .iter()

@@ -87,7 +87,7 @@ impl Default for ActixTemplateConfiguration {
 pub async fn get_user(
     api_url: String,
     api_key: String,
-) -> actix_web_starter_client::apis::auth_api::WhoamiSuccess {
+) -> Result<actix_web_starter_client::apis::auth_api::WhoamiSuccess, DefaultError> {
     let configuration = Configuration {
         base_path: api_url.clone(),
         api_key: Some(ApiKey {
@@ -97,18 +97,17 @@ pub async fn get_user(
         ..Default::default()
     };
 
-    whoami(&configuration)
+    Ok(whoami(&configuration)
         .await
-        .map_err(|e| {
-            eprintln!("Error getting user: {:?}", e);
-            std::process::exit(1);
-        })
-        .unwrap()
+        .map_err(|e| DefaultError::new(format!("Error getting user: {:?}", e).as_str()))?
         .entity
-        .unwrap()
+        .expect("User entity not found"))
 }
 
-async fn configure(api_url: String, mut api_key: Option<String>) -> ActixTemplateConfiguration {
+async fn configure(
+    api_url: String,
+    mut api_key: Option<String>,
+) -> Result<ActixTemplateConfiguration, DefaultError> {
     if api_key.is_none() {
         let (tx, mut rx) = mpsc::channel::<String>(100);
 
@@ -124,9 +123,7 @@ async fn configure(api_url: String, mut api_key: Option<String>) -> ActixTemplat
             api_url = api_url
         );
 
-        let _ = Text::new("Press Enter to authenticate in browser: ")
-            .prompt()
-            .unwrap();
+        let _ = Text::new("Press Enter to authenticate in browser: ").prompt()?;
 
         if open::that(auth_url.clone()).is_err() {
             eprintln!("Error opening browser. Please visit the URL manually.");
@@ -141,7 +138,7 @@ async fn configure(api_url: String, mut api_key: Option<String>) -> ActixTemplat
         server.abort();
     }
 
-    let result = get_user(api_url.clone(), api_key.clone().unwrap()).await;
+    let result = get_user(api_url.clone(), api_key.clone().unwrap()).await?;
 
     let temporary_config = Configuration {
         base_path: api_url.clone(),
@@ -159,7 +156,7 @@ async fn configure(api_url: String, mut api_key: Option<String>) -> ActixTemplat
                     .await;
 
             let org_id = match potential_org {
-                Ok(selection) => selection.id,
+                Ok(selection) => Ok(selection.id),
                 Err(OrgSelectError::NoOrgs) => {
                     // Create the org
                     let created = create_org(
@@ -170,30 +167,25 @@ async fn configure(api_url: String, mut api_key: Option<String>) -> ActixTemplat
                         },
                         None,
                     )
-                    .await
-                    .unwrap_or_else(|e| {
-                        eprintln!("Error creating org: {:?}", e);
-                        std::process::exit(1);
-                    });
-                    created.id
+                    .await?;
+                    Ok(created.id)
                 }
-                _ => {
-                    eprintln!("Error selecting org: {:?}", potential_org);
-                    std::process::exit(1);
+                Err(OrgSelectError::CancelInput) => {
+                    Err(DefaultError::new("Org selection cancelled"))
                 }
-            };
+                Err(OrgSelectError::OrgFetchFailure) => {
+                    Err(DefaultError::new("Error fetching orgs"))
+                }
+            }?;
 
-            ActixTemplateConfiguration {
+            Ok(ActixTemplateConfiguration {
                 // Prompt user to select an org or create one
                 api_key: api_key.unwrap(),
                 api_url: api_url.clone(),
-                org_id: org_id,
-            }
+                org_id,
+            })
         }
-        _ => {
-            eprintln!("Error authenticating: {:?}", result);
-            std::process::exit(1);
-        }
+        _ => Err(DefaultError::new("Error getting user")),
     }
 }
 
@@ -219,9 +211,9 @@ pub async fn login(init: Login, settings: ActixTemplateConfiguration) -> Result<
             "Would you like to use the default URL for the Actix Template server (http://localhost:8090)?",
         )
         .with_default(true)
-        .prompt();
+        .prompt()?;
 
-        if use_default.unwrap() {
+        if use_default {
             api_url = Some("http://localhost:8090".to_string());
         } else {
             Text::new("Enter the URL of the Actix Template server:")
@@ -231,7 +223,7 @@ pub async fn login(init: Login, settings: ActixTemplateConfiguration) -> Result<
         }
     }
 
-    let config = configure(api_url.unwrap().clone(), api_key).await;
+    let config = configure(api_url.unwrap().clone(), api_key).await?;
 
     let profile_name = if init.profile_name.is_none() {
         let profile_name = Text::new("Enter a name for this profile:")
@@ -256,10 +248,10 @@ pub async fn login(init: Login, settings: ActixTemplateConfiguration) -> Result<
     if profiles.iter().any(|p| p.name == profile_name) {
         let overwrite = Confirm::new("Profile already exists. Overwrite?")
             .with_default(false)
-            .prompt();
+            .prompt()?;
 
-        if !overwrite.unwrap() {
-            std::process::exit(0);
+        if !overwrite {
+            return Ok(());
         }
 
         profiles.retain(|p| p.name != profile_name);
