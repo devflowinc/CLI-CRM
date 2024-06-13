@@ -7,6 +7,7 @@ docs/AuthApi.md
 docs/CompaniesApi.md
 docs/Company.md
 docs/Contact.md
+docs/ContactList.md
 docs/ContactsApi.md
 docs/CreateApiKeyReqPayload.md
 docs/CreateApiKeyRespPayload.md
@@ -20,6 +21,13 @@ docs/CreateOrgReqPayload.md
 docs/CreatePhoneReqPayload.md
 docs/CreateTaskReqPayload.md
 docs/Deal.md
+docs/DealContact.md
+docs/DealResType.md
+docs/DealResource.md
+docs/DealResourceList.md
+docs/DealResourceListOneOf.md
+docs/DealResourceListWithPagination.md
+docs/DealResourceOneOf.md
 docs/DealsApi.md
 docs/Email.md
 docs/EmailsApi.md
@@ -32,6 +40,9 @@ docs/InvitationData.md
 docs/InvitationResponse.md
 docs/Link.md
 docs/LinksApi.md
+docs/ListContactsQuery.md
+docs/ListDealByOrgRespBody.md
+docs/ListDealResourceQuery.md
 docs/Note.md
 docs/NotesApi.md
 docs/Org.md
@@ -82,6 +93,7 @@ src/apis/tasks_api.rs
 src/lib.rs
 src/models/company.rs
 src/models/contact.rs
+src/models/contact_list.rs
 src/models/create_api_key_req_payload.rs
 src/models/create_api_key_resp_payload.rs
 src/models/create_company_req_payload.rs
@@ -94,6 +106,13 @@ src/models/create_org_req_payload.rs
 src/models/create_phone_req_payload.rs
 src/models/create_task_req_payload.rs
 src/models/deal.rs
+src/models/deal_contact.rs
+src/models/deal_res_type.rs
+src/models/deal_resource.rs
+src/models/deal_resource_list.rs
+src/models/deal_resource_list_one_of.rs
+src/models/deal_resource_list_with_pagination.rs
+src/models/deal_resource_one_of.rs
 src/models/email.rs
 src/models/error_resp_payload.rs
 src/models/get_task_resource_query.rs
@@ -101,6 +120,9 @@ src/models/invitation.rs
 src/models/invitation_data.rs
 src/models/invitation_response.rs
 src/models/link.rs
+src/models/list_contacts_query.rs
+src/models/list_deal_by_org_resp_body.rs
+src/models/list_deal_resource_query.rs
 src/models/mod.rs
 src/models/note.rs
 src/models/org.rs

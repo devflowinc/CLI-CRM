@@ -5,14 +5,15 @@ use crate::{
     data::models::{Deal, Link, PgPool, TaskDeal, TaskLink, TaskUser, User},
     errors::ServiceError,
     operators::{
-        deal_operator::list_deals_by_task_id,
-        link_operator::list_links_by_task_id,
+        deal_operator::list_deals_by_task_id_query,
+        link_operator::list_links_by_task_id_query,
         task_operator::{
             create_deal_for_task_query, create_link_for_task_query, create_task_query,
             create_user_for_task_query, delete_deal_from_task_query, delete_link_from_task_query,
-            delete_task_query, delete_user_from_task_query, get_task_by_id, update_task_query,
+            delete_task_query, delete_user_from_task_query, get_task_by_id_query,
+            update_task_query,
         },
-        user_operator::list_users_by_task_id,
+        user_operator::list_users_by_task_id_query,
     },
     prefixes::{ContactPrefix, DealPrefix, LinkPrefix, PrefixedUuid, TaskPrefix, UserPrefix},
 };
@@ -116,7 +117,7 @@ pub async fn get_task(
     pg_pool: web::Data<PgPool>,
 ) -> Result<HttpResponse, actix_web::Error> {
     let task_id = path.into_inner();
-    match get_task_by_id(task_id, pg_pool).await {
+    match get_task_by_id_query(task_id, pg_pool).await {
         Ok(task) => Ok(HttpResponse::Ok().json(task)),
         Err(_) => Ok(HttpResponse::NotFound().finish()),
     }
@@ -169,7 +170,6 @@ pub async fn update_task(
 }
 
 #[derive(Serialize, Deserialize, Clone, ToSchema)]
-#[serde(rename_all = "snake_case")]
 pub enum TaskResource {
     Link(TaskLink),
     Deal(TaskDeal),
@@ -177,7 +177,6 @@ pub enum TaskResource {
 }
 
 #[derive(Serialize, Deserialize, Clone, ToSchema)]
-#[serde(rename_all = "snake_case")]
 pub enum TaskResType {
     Link,
     Deal,
@@ -273,7 +272,7 @@ pub async fn delete_task_resource(
 #[derive(Debug, Deserialize, ToSchema)]
 pub struct GetTaskResourceQuery {
     limit: Option<i64>,
-    offset: Option<i64>,
+    offset: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize, ToSchema, Clone)]
@@ -283,7 +282,6 @@ pub struct TaskResourceListWithPagination {
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone, ToSchema)]
-#[serde(rename_all = "snake_case")]
 pub enum TaskResourceList {
     Link(Vec<Link>),
     Deal(Vec<Deal>),
@@ -304,8 +302,8 @@ pub enum TaskResourceList {
     ("task_id" = String, description = "The task id to use for the request"),
     ("resource_type" = TaskResType, description = "The resource type to use for the request"),
     ("Organization" = String, Header, description = "The organization id to use for the request"),
-    ("limit" = i64, Query, description = "The number of records to return"),
-    ("offset" = i64, Query, description = "The number of records to skip"),
+    ("limit" = Option<i64>, Query, description = "The number of records to return"),
+    ("offset" = Option<String>, Query, description = "The number of records to skip"),
   ),
   security(
       ("ApiKey" = ["readonly"]),
@@ -320,21 +318,27 @@ pub async fn list_task_resource(
     let GetTaskResourceQuery { limit, offset } = query.into_inner();
     match resource {
         TaskResType::Link => {
-            let (links, count) = list_links_by_task_id(task_id, pg_pool, offset, limit).await?;
+            let offset = PrefixedUuid::from_optional_str(offset)?;
+            let (links, count) =
+                list_links_by_task_id_query(task_id, pg_pool, offset, limit).await?;
             Ok(HttpResponse::Ok().json(TaskResourceListWithPagination {
                 data: TaskResourceList::Link(links),
                 total: count,
             }))
         }
         TaskResType::Deal => {
-            let (deals, count) = list_deals_by_task_id(task_id, pg_pool, offset, limit).await?;
+            let offset = PrefixedUuid::from_optional_str(offset)?;
+            let (deals, count) =
+                list_deals_by_task_id_query(task_id, pg_pool, offset, limit).await?;
             Ok(HttpResponse::Ok().json(TaskResourceListWithPagination {
                 data: TaskResourceList::Deal(deals),
                 total: count,
             }))
         }
         TaskResType::User => {
-            let (users, count) = list_users_by_task_id(task_id, pg_pool, offset, limit).await?;
+            let offset = PrefixedUuid::from_optional_str(offset)?;
+            let (users, count) =
+                list_users_by_task_id_query(task_id, pg_pool, offset, limit).await?;
             Ok(HttpResponse::Ok().json(TaskResourceListWithPagination {
                 data: TaskResourceList::User(users),
                 total: count,

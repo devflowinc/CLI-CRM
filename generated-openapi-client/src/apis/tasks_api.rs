@@ -77,9 +77,9 @@ pub struct ListTaskResourceParams {
     /// The organization id to use for the request
     pub organization: String,
     /// The number of records to return
-    pub limit: i64,
+    pub limit: Option<i64>,
     /// The number of records to skip
-    pub offset: i64
+    pub offset: Option<String>
 }
 
 /// struct for passing parameters to the method [`update_task`]
@@ -448,8 +448,12 @@ pub async fn list_task_resource(configuration: &configuration::Configuration, pa
     let local_var_uri_str = format!("{}/api/tasks/{task_id}/{resource_type}", local_var_configuration.base_path, task_id=crate::apis::urlencode(task_id), resource_type=resource_type.to_string());
     let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
 
-    local_var_req_builder = local_var_req_builder.query(&[("limit", &limit.to_string())]);
-    local_var_req_builder = local_var_req_builder.query(&[("offset", &offset.to_string())]);
+    if let Some(ref local_var_str) = limit {
+        local_var_req_builder = local_var_req_builder.query(&[("limit", &local_var_str.to_string())]);
+    }
+    if let Some(ref local_var_str) = offset {
+        local_var_req_builder = local_var_req_builder.query(&[("offset", &local_var_str.to_string())]);
+    }
     if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
         local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
     }

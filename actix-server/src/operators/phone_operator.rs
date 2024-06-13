@@ -67,7 +67,7 @@ pub async fn update_phone_query(
     Ok(updated_phone)
 }
 
-pub async fn get_phone_by_id(
+pub async fn get_phone_by_id_query(
     phone_id: PrefixedUuid<PhonePrefix>,
     pg_pool: web::Data<PgPool>,
 ) -> Result<Phone, ServiceError> {

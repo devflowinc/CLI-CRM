@@ -1,10 +1,10 @@
 use crate::{
-    data::models::{Contact, PgPool},
+    data::models::{Contact, Deal, DealContact, PgPool},
     errors::ServiceError,
-    prefixes::{ContactPrefix, OrgPrefix, PrefixedUuid},
+    prefixes::{ContactPrefix, DealPrefix, OrgPrefix, PrefixedUuid},
 };
 use actix_web::web;
-use diesel::{ExpressionMethods, QueryDsl};
+use diesel::{BelongingToDsl, ExpressionMethods, QueryDsl, SelectableHelper};
 use diesel_async::RunQueryDsl;
 
 #[tracing::instrument(skip(pg_pool))]
@@ -61,7 +61,7 @@ pub async fn update_contact_query(
     Ok(updated_contact)
 }
 
-pub async fn get_contact_by_id(
+pub async fn get_contact_by_id_query(
     contact_id: PrefixedUuid<ContactPrefix>,
     pg_pool: web::Data<PgPool>,
 ) -> Result<Contact, ServiceError> {
@@ -73,4 +73,62 @@ pub async fn get_contact_by_id(
         .await
         .map_err(|_| ServiceError::NotFound)?;
     Ok(contact)
+}
+
+pub async fn get_contacts_by_deal_id_query(
+    deal_id: PrefixedUuid<DealPrefix>,
+    pg_pool: web::Data<PgPool>,
+    limit: Option<i64>,
+    offset: Option<PrefixedUuid<ContactPrefix>>,
+) -> Result<(Vec<Contact>, i64), ServiceError> {
+    use crate::data::schema::contacts::dsl as contacts_columns;
+    use crate::data::schema::deals::dsl as deals_columns;
+    let mut conn = pg_pool.get().await.unwrap();
+    let limit = limit.unwrap_or(10);
+    let offset = offset.unwrap_or(PrefixedUuid::zero_id(ContactPrefix));
+    let deal = deals_columns::deals
+        .filter(deals_columns::id.eq(deal_id))
+        .first::<Deal>(&mut conn)
+        .await?;
+    let contacts = DealContact::belonging_to(&deal)
+        .inner_join(contacts_columns::contacts)
+        .select(Contact::as_select())
+        .filter(contacts_columns::id.gt(offset))
+        .order((contacts_columns::updated_at, contacts_columns::id))
+        .limit(limit)
+        .load::<Contact>(&mut conn)
+        .await?;
+    let count = DealContact::belonging_to(&deal)
+        .inner_join(contacts_columns::contacts)
+        .select(contacts_columns::id)
+        .count()
+        .get_result::<i64>(&mut conn)
+        .await?;
+    Ok((contacts, count))
+}
+
+pub async fn get_contacts_by_org_id_query(
+    org_id: PrefixedUuid<OrgPrefix>,
+    pg_pool: web::Data<PgPool>,
+    limit: Option<i64>,
+    offset: Option<PrefixedUuid<ContactPrefix>>,
+) -> Result<(Vec<Contact>, i64), ServiceError> {
+    use crate::data::schema::contacts::dsl as contacts_columns;
+    let mut conn = pg_pool.get().await.unwrap();
+    let limit = limit.unwrap_or(10);
+    let offset = offset.unwrap_or(PrefixedUuid::zero_id(ContactPrefix));
+    let contacts = contacts_columns::contacts
+        .filter(contacts_columns::org_id.eq(org_id))
+        .filter(contacts_columns::id.gt(offset))
+        .order((contacts_columns::updated_at, contacts_columns::id))
+        .limit(limit)
+        .load::<Contact>(&mut conn)
+        .await?;
+    let count = contacts_columns::contacts
+        .filter(contacts_columns::org_id.eq(org_id))
+        .count()
+        .get_result::<i64>(&mut conn)
+        .await?;
+    println!("offset: {:?}", offset);
+    Ok((contacts, count))
 }

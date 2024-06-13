@@ -7,6 +7,7 @@ Method | HTTP request | Description
 [**create_contact**](ContactsApi.md#create_contact) | **POST** /api/contacts | 
 [**delete_contact**](ContactsApi.md#delete_contact) | **DELETE** /api/contacts/{contact_id} | 
 [**get_contact**](ContactsApi.md#get_contact) | **GET** /api/contacts/{contact_id} | 
+[**list_contacts**](ContactsApi.md#list_contacts) | **GET** /api/contacts/list | 
 [**update_contact**](ContactsApi.md#update_contact) | **PUT** /api/contacts/{contact_id} | 
 
 
@@ -85,6 +86,36 @@ Name | Type | Description  | Required | Notes
 ### Return type
 
 [**models::Contact**](Contact.md)
+
+### Authorization
+
+[ApiKey](../README.md#ApiKey)
+
+### HTTP request headers
+
+- **Content-Type**: Not defined
+- **Accept**: application/json
+
+[[Back to top]](#) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to Model list]](../README.md#documentation-for-models) [[Back to README]](../README.md)
+
+
+## list_contacts
+
+> models::ContactList list_contacts(organization, limit, offset)
+
+
+### Parameters
+
+
+Name | Type | Description  | Required | Notes
+------------- | ------------- | ------------- | ------------- | -------------
+**organization** | **String** | The org id to use for the request | [required] |
+**limit** | Option<**i64**> | The number of contacts to return |  |
+**offset** | Option<**String**> | The offset to start from |  |
+
+### Return type
+
+[**models::ContactList**](ContactList.md)
 
 ### Authorization
 

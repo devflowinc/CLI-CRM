@@ -176,8 +176,8 @@ Name | Type | Description  | Required | Notes
 **task_id** | **String** | The task id to use for the request | [required] |
 **resource_type** | [**TaskResType**](.md) | The resource type to use for the request | [required] |
 **organization** | **String** | The organization id to use for the request | [required] |
-**limit** | **i64** | The number of records to return | [required] |
-**offset** | **i64** | The number of records to skip | [required] |
+**limit** | Option<**i64**> | The number of records to return |  |
+**offset** | Option<**String**> | The number of records to skip |  |
 
 ### Return type
 

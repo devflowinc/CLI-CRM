@@ -140,6 +140,51 @@ impl Deal {
     }
 }
 
+#[derive(
+    Debug,
+    PartialEq,
+    Serialize,
+    Deserialize,
+    Associations,
+    Queryable,
+    Insertable,
+    Selectable,
+    Clone,
+    ToSchema,
+    Identifiable,
+)]
+#[schema(example = json!({
+    "id": "dealcontact-b8b8b8b8-b8b8-b8b8-b8b8-b8b8b8b8b8b8",
+    "deal_id": "deal-b8b8b8b8-b8b8-b8b8-b8b8-b8b8b8b8b8b8",
+    "contact_id": "contact-c7c7c7c7-c7c7-c7c7-c7c7-c7c7c7c7c7c7",
+    "created_at": "2021-01-01T00:00:00",
+    "updated_at": "2021-01-01T00:00:00",
+}))]
+#[diesel(belongs_to(Contact))]
+#[diesel(belongs_to(Deal))]
+#[diesel(table_name=deal_contacts)]
+pub struct DealContact {
+    pub id: PrefixedUuid<DealContactPrefix>,
+    pub deal_id: PrefixedUuid<DealPrefix>,
+    pub contact_id: PrefixedUuid<ContactPrefix>,
+    pub created_at: chrono::NaiveDateTime,
+    pub updated_at: chrono::NaiveDateTime,
+}
+impl DealContact {
+    pub fn from_details(
+        deal_id: PrefixedUuid<DealPrefix>,
+        contact_id: PrefixedUuid<ContactPrefix>,
+    ) -> Self {
+        DealContact {
+            id: PrefixedUuid::create(DealContactPrefix),
+            deal_id,
+            contact_id,
+            created_at: chrono::Utc::now().naive_local(),
+            updated_at: chrono::Utc::now().naive_local(),
+        }
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, PartialEq, Eq, Clone, Ord, PartialOrd)]
 pub enum UserRole {
     Owner = 2,

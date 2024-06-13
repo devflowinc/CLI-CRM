@@ -12,7 +12,7 @@ use crate::models;
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct TaskResourceOneOf {
-    #[serde(rename = "link")]
+    #[serde(rename = "Link")]
     pub link: Box<models::TaskLink>,
 }
 

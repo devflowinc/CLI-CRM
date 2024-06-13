@@ -128,10 +128,15 @@ impl Modify for SecurityAddon {
         handlers::deal_handler::delete_deal,
         handlers::deal_handler::update_deal,
         handlers::deal_handler::get_deal,
+        handlers::deal_handler::list_deal_resource,
+        handlers::deal_handler::create_deal_resource,
+        handlers::deal_handler::delete_deal_resource,
+        handlers::deal_handler::list_deal_by_org,
         handlers::contact_handler::create_contact,
         handlers::contact_handler::delete_contact,
         handlers::contact_handler::update_contact,
         handlers::contact_handler::get_contact,
+        handlers::contact_handler::list_contacts,
         handlers::note_handler::create_note,
         handlers::note_handler::delete_note,
         handlers::note_handler::update_note,
@@ -171,8 +176,16 @@ impl Modify for SecurityAddon {
             handlers::org_handler::UpdateOrgReqPayload,
             handlers::deal_handler::CreateDealReqPayload,
             handlers::deal_handler::UpdateDealReqPayload,
+            handlers::deal_handler::ListDealResourceQuery,
+            handlers::deal_handler::DealResourceList,
+            handlers::deal_handler::DealResource,
+            handlers::deal_handler::DealResType,
+            handlers::deal_handler::DealResourceListWithPagination,
+            handlers::deal_handler::ListDealByOrgRespBody,
             handlers::contact_handler::CreateContactReqPayload,
             handlers::contact_handler::UpdateContactReqPayload,
+            handlers::contact_handler::ContactList,
+            handlers::contact_handler::ListContactsQuery,
             handlers::link_handler::CreateLinkReqPayload,
             handlers::link_handler::UpdateLinkReqPayload,
             handlers::email_handler::CreateEmailReqPayload,
@@ -198,6 +211,7 @@ impl Modify for SecurityAddon {
             models::Note,
             models::Task,
             models::Deal,
+            models::DealContact,
             models::Link,
             models::Email,
             models::Phone,
@@ -213,6 +227,8 @@ impl Modify for SecurityAddon {
             prefixes::PrefixedUuid<prefixes::NotePrefix>,
             prefixes::PrefixedUuid<prefixes::ContactPrefix>,
             prefixes::PrefixedUuid<prefixes::LinkPrefix>,
+            prefixes::PrefixedUuid<prefixes::DealPrefix>,
+            prefixes::PrefixedUuid<prefixes::DealContactPrefix>,
             prefixes::PrefixedUuid<prefixes::EmailPrefix>,
             prefixes::PrefixedUuid<prefixes::PhonePrefix>,
             prefixes::PrefixedUuid<prefixes::TaskPrefix>,
@@ -499,19 +515,44 @@ pub fn main() -> std::io::Result<()> {
                                         .route(web::post().to(handlers::deal_handler::create_deal)),
                                 )
                                 .service(
-                                    web::resource("/{deal_id}")
+                                    web::resource("/list/org")
+                                        .route(
+                                            web::get().to(handlers::deal_handler::list_deal_by_org),
+                                            )
+                                    )
+                                .service(
+                                    web::scope("/{deal_id}")
+                                    .service(
+                                        web::resource("")
                                         .route(
                                             web::delete().to(handlers::deal_handler::delete_deal),
                                         )
                                         .route(web::get().to(handlers::deal_handler::get_deal))
                                         .route(web::put().to(handlers::deal_handler::update_deal)),
+                                        )
+                                    .service(
+                                        web::scope("/{resource_type}")
+                                        .service(
+                                            web::resource("")
+                                            .route(web::get().to(handlers::deal_handler::list_deal_resource))
+                                            )
+                                        .service(
+                                            web::resource("/{resource_id}")
+                                            .route(web::post().to(handlers::deal_handler::create_deal_resource))
+                                            .route(web::delete().to(handlers::deal_handler::delete_deal_resource))
+                                            )
+                                        )
                                 ),
                         )
                         .service(
                             web::scope("/contacts")
                                 .service(web::resource("").route(
                                     web::post().to(handlers::contact_handler::create_contact),
-                                ))
+                                )).service(
+                                    web::resource("/list")
+                                    .route(web::get().to(handlers::contact_handler::list_contacts))
+                                    )
+
                                 .service(
                                     web::resource("/{contact_id}")
                                         .route(
@@ -525,8 +566,8 @@ pub fn main() -> std::io::Result<()> {
                                             web::put()
                                                 .to(handlers::contact_handler::update_contact),
                                         ),
-                                ),
-                        )
+                                )                        
+                                )
                         .service(
                             web::scope("/links")
                                 .service(

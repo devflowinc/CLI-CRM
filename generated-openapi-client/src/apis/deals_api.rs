@@ -23,12 +23,38 @@ pub struct CreateDealParams {
     pub create_deal_req_payload: models::CreateDealReqPayload
 }
 
+/// struct for passing parameters to the method [`create_deal_resource`]
+#[derive(Clone, Debug)]
+pub struct CreateDealResourceParams {
+    /// The deal id to use for the request
+    pub deal_id: String,
+    /// The resource type to use for the request
+    pub resource_type: models::DealResType,
+    /// The resource id to use for the request
+    pub resource_id: String,
+    /// The organization id to use for the request
+    pub organization: String
+}
+
 /// struct for passing parameters to the method [`delete_deal`]
 #[derive(Clone, Debug)]
 pub struct DeleteDealParams {
     /// The deal id to use for the request
     pub deal_id: String,
     /// The org id to use for the request
+    pub organization: String
+}
+
+/// struct for passing parameters to the method [`delete_deal_resource`]
+#[derive(Clone, Debug)]
+pub struct DeleteDealResourceParams {
+    /// The deal id to use for the request
+    pub deal_id: String,
+    /// The resource type to use for the request
+    pub resource_type: models::DealResType,
+    /// The resource id to use for the request
+    pub resource_id: String,
+    /// The organization id to use for the request
     pub organization: String
 }
 
@@ -39,6 +65,32 @@ pub struct GetDealParams {
     pub deal_id: String,
     /// The org id to use for the request
     pub organization: String
+}
+
+/// struct for passing parameters to the method [`list_deal_by_org`]
+#[derive(Clone, Debug)]
+pub struct ListDealByOrgParams {
+    /// The organization id to use for the request
+    pub organization: String,
+    /// The number of records to return
+    pub limit: Option<i64>,
+    /// The UUID of the record to start from
+    pub offset: Option<String>
+}
+
+/// struct for passing parameters to the method [`list_deal_resource`]
+#[derive(Clone, Debug)]
+pub struct ListDealResourceParams {
+    /// The deal id to use for the request
+    pub deal_id: String,
+    /// The resource type to use for the request
+    pub resource_type: models::DealResType,
+    /// The organization id to use for the request
+    pub organization: String,
+    /// The number of records to return
+    pub limit: Option<i64>,
+    /// The UUID of the record to start from
+    pub offset: Option<String>
 }
 
 /// struct for passing parameters to the method [`update_deal`]
@@ -61,10 +113,26 @@ pub enum CreateDealSuccess {
     UnknownValue(serde_json::Value),
 }
 
+/// struct for typed successes of method [`create_deal_resource`]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum CreateDealResourceSuccess {
+    Status200(models::DealResource),
+    UnknownValue(serde_json::Value),
+}
+
 /// struct for typed successes of method [`delete_deal`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DeleteDealSuccess {
+    Status204(),
+    UnknownValue(serde_json::Value),
+}
+
+/// struct for typed successes of method [`delete_deal_resource`]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum DeleteDealResourceSuccess {
     Status204(),
     UnknownValue(serde_json::Value),
 }
@@ -74,6 +142,22 @@ pub enum DeleteDealSuccess {
 #[serde(untagged)]
 pub enum GetDealSuccess {
     Status200(models::Deal),
+    UnknownValue(serde_json::Value),
+}
+
+/// struct for typed successes of method [`list_deal_by_org`]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ListDealByOrgSuccess {
+    Status200(models::ListDealByOrgRespBody),
+    UnknownValue(serde_json::Value),
+}
+
+/// struct for typed successes of method [`list_deal_resource`]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ListDealResourceSuccess {
+    Status200(models::DealResourceListWithPagination),
     UnknownValue(serde_json::Value),
 }
 
@@ -93,6 +177,15 @@ pub enum CreateDealError {
     UnknownValue(serde_json::Value),
 }
 
+/// struct for typed errors of method [`create_deal_resource`]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum CreateDealResourceError {
+    Status400(models::ErrorRespPayload),
+    Status401(models::ErrorRespPayload),
+    UnknownValue(serde_json::Value),
+}
+
 /// struct for typed errors of method [`delete_deal`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -101,10 +194,36 @@ pub enum DeleteDealError {
     UnknownValue(serde_json::Value),
 }
 
+/// struct for typed errors of method [`delete_deal_resource`]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum DeleteDealResourceError {
+    Status400(models::ErrorRespPayload),
+    Status401(models::ErrorRespPayload),
+    UnknownValue(serde_json::Value),
+}
+
 /// struct for typed errors of method [`get_deal`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetDealError {
+    Status401(models::ErrorRespPayload),
+    UnknownValue(serde_json::Value),
+}
+
+/// struct for typed errors of method [`list_deal_by_org`]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ListDealByOrgError {
+    Status401(models::ErrorRespPayload),
+    UnknownValue(serde_json::Value),
+}
+
+/// struct for typed errors of method [`list_deal_resource`]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum ListDealResourceError {
+    Status400(models::ErrorRespPayload),
     Status401(models::ErrorRespPayload),
     UnknownValue(serde_json::Value),
 }
@@ -162,6 +281,51 @@ pub async fn create_deal(configuration: &configuration::Configuration, params: C
     }
 }
 
+pub async fn create_deal_resource(configuration: &configuration::Configuration, params: CreateDealResourceParams) -> Result<ResponseContent<CreateDealResourceSuccess>, Error<CreateDealResourceError>> {
+    let local_var_configuration = configuration;
+
+    // unbox the parameters
+    let deal_id = params.deal_id;
+    let resource_type = params.resource_type;
+    let resource_id = params.resource_id;
+    let organization = params.organization;
+
+
+    let local_var_client = &local_var_configuration.client;
+
+    let local_var_uri_str = format!("{}/api/deals/{deal_id}/{resource_type}/{resource_id}", local_var_configuration.base_path, deal_id=crate::apis::urlencode(deal_id), resource_type=resource_type.to_string(), resource_id=crate::apis::urlencode(resource_id));
+    let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+    if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+        local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+    }
+    local_var_req_builder = local_var_req_builder.header("Organization", organization.to_string());
+    if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+        let local_var_key = local_var_apikey.key.clone();
+        let local_var_value = match local_var_apikey.prefix {
+            Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+            None => local_var_key,
+        };
+        local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+    };
+
+    let local_var_req = local_var_req_builder.build()?;
+    let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+    let local_var_status = local_var_resp.status();
+    let local_var_content = local_var_resp.text().await?;
+
+    if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+        let local_var_entity: Option<CreateDealResourceSuccess> = serde_json::from_str(&local_var_content).ok();
+        let local_var_result = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+        Ok(local_var_result)
+    } else {
+        let local_var_entity: Option<CreateDealResourceError> = serde_json::from_str(&local_var_content).ok();
+        let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+        Err(Error::ResponseError(local_var_error))
+    }
+}
+
 pub async fn delete_deal(configuration: &configuration::Configuration, params: DeleteDealParams) -> Result<ResponseContent<DeleteDealSuccess>, Error<DeleteDealError>> {
     let local_var_configuration = configuration;
 
@@ -205,6 +369,51 @@ pub async fn delete_deal(configuration: &configuration::Configuration, params: D
     }
 }
 
+pub async fn delete_deal_resource(configuration: &configuration::Configuration, params: DeleteDealResourceParams) -> Result<ResponseContent<DeleteDealResourceSuccess>, Error<DeleteDealResourceError>> {
+    let local_var_configuration = configuration;
+
+    // unbox the parameters
+    let deal_id = params.deal_id;
+    let resource_type = params.resource_type;
+    let resource_id = params.resource_id;
+    let organization = params.organization;
+
+
+    let local_var_client = &local_var_configuration.client;
+
+    let local_var_uri_str = format!("{}/api/deals/{deal_id}/{resource_type}/{resource_id}", local_var_configuration.base_path, deal_id=crate::apis::urlencode(deal_id), resource_type=resource_type.to_string(), resource_id=crate::apis::urlencode(resource_id));
+    let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
+
+    if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+        local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+    }
+    local_var_req_builder = local_var_req_builder.header("Organization", organization.to_string());
+    if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+        let local_var_key = local_var_apikey.key.clone();
+        let local_var_value = match local_var_apikey.prefix {
+            Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+            None => local_var_key,
+        };
+        local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+    };
+
+    let local_var_req = local_var_req_builder.build()?;
+    let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+    let local_var_status = local_var_resp.status();
+    let local_var_content = local_var_resp.text().await?;
+
+    if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+        let local_var_entity: Option<DeleteDealResourceSuccess> = serde_json::from_str(&local_var_content).ok();
+        let local_var_result = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+        Ok(local_var_result)
+    } else {
+        let local_var_entity: Option<DeleteDealResourceError> = serde_json::from_str(&local_var_content).ok();
+        let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+        Err(Error::ResponseError(local_var_error))
+    }
+}
+
 pub async fn get_deal(configuration: &configuration::Configuration, params: GetDealParams) -> Result<ResponseContent<GetDealSuccess>, Error<GetDealError>> {
     let local_var_configuration = configuration;
 
@@ -243,6 +452,108 @@ pub async fn get_deal(configuration: &configuration::Configuration, params: GetD
         Ok(local_var_result)
     } else {
         let local_var_entity: Option<GetDealError> = serde_json::from_str(&local_var_content).ok();
+        let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+        Err(Error::ResponseError(local_var_error))
+    }
+}
+
+pub async fn list_deal_by_org(configuration: &configuration::Configuration, params: ListDealByOrgParams) -> Result<ResponseContent<ListDealByOrgSuccess>, Error<ListDealByOrgError>> {
+    let local_var_configuration = configuration;
+
+    // unbox the parameters
+    let organization = params.organization;
+    let limit = params.limit;
+    let offset = params.offset;
+
+
+    let local_var_client = &local_var_configuration.client;
+
+    let local_var_uri_str = format!("{}/api/deals/list/org", local_var_configuration.base_path);
+    let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+    if let Some(ref local_var_str) = limit {
+        local_var_req_builder = local_var_req_builder.query(&[("limit", &local_var_str.to_string())]);
+    }
+    if let Some(ref local_var_str) = offset {
+        local_var_req_builder = local_var_req_builder.query(&[("offset", &local_var_str.to_string())]);
+    }
+    if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+        local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+    }
+    local_var_req_builder = local_var_req_builder.header("Organization", organization.to_string());
+    if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+        let local_var_key = local_var_apikey.key.clone();
+        let local_var_value = match local_var_apikey.prefix {
+            Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+            None => local_var_key,
+        };
+        local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+    };
+
+    let local_var_req = local_var_req_builder.build()?;
+    let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+    let local_var_status = local_var_resp.status();
+    let local_var_content = local_var_resp.text().await?;
+
+    if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+        let local_var_entity: Option<ListDealByOrgSuccess> = serde_json::from_str(&local_var_content).ok();
+        let local_var_result = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+        Ok(local_var_result)
+    } else {
+        let local_var_entity: Option<ListDealByOrgError> = serde_json::from_str(&local_var_content).ok();
+        let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+        Err(Error::ResponseError(local_var_error))
+    }
+}
+
+pub async fn list_deal_resource(configuration: &configuration::Configuration, params: ListDealResourceParams) -> Result<ResponseContent<ListDealResourceSuccess>, Error<ListDealResourceError>> {
+    let local_var_configuration = configuration;
+
+    // unbox the parameters
+    let deal_id = params.deal_id;
+    let resource_type = params.resource_type;
+    let organization = params.organization;
+    let limit = params.limit;
+    let offset = params.offset;
+
+
+    let local_var_client = &local_var_configuration.client;
+
+    let local_var_uri_str = format!("{}/api/deals/{deal_id}/{resource_type}", local_var_configuration.base_path, deal_id=crate::apis::urlencode(deal_id), resource_type=resource_type.to_string());
+    let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+    if let Some(ref local_var_str) = limit {
+        local_var_req_builder = local_var_req_builder.query(&[("limit", &local_var_str.to_string())]);
+    }
+    if let Some(ref local_var_str) = offset {
+        local_var_req_builder = local_var_req_builder.query(&[("offset", &local_var_str.to_string())]);
+    }
+    if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+        local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+    }
+    local_var_req_builder = local_var_req_builder.header("Organization", organization.to_string());
+    if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+        let local_var_key = local_var_apikey.key.clone();
+        let local_var_value = match local_var_apikey.prefix {
+            Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+            None => local_var_key,
+        };
+        local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+    };
+
+    let local_var_req = local_var_req_builder.build()?;
+    let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+    let local_var_status = local_var_resp.status();
+    let local_var_content = local_var_resp.text().await?;
+
+    if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+        let local_var_entity: Option<ListDealResourceSuccess> = serde_json::from_str(&local_var_content).ok();
+        let local_var_result = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+        Ok(local_var_result)
+    } else {
+        let local_var_entity: Option<ListDealResourceError> = serde_json::from_str(&local_var_content).ok();
         let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
         Err(Error::ResponseError(local_var_error))
     }

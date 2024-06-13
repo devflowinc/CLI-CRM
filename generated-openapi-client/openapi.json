@@ -606,6 +606,75 @@
         ]
       }
     },
+    "/api/contacts/list": {
+      "get": {
+        "tags": [
+          "contacts"
+        ],
+        "operationId": "list_contacts",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The number of contacts to return",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "The offset to start from",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "Organization",
+            "in": "header",
+            "description": "The org id to use for the request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "JSON object representing the requested contact",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ContactList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Service error relating to authentication status of the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespPayload"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": [
+              "readonly"
+            ]
+          }
+        ]
+      }
+    },
     "/api/contacts/{contact_id}": {
       "get": {
         "tags": [
@@ -836,6 +905,75 @@
         ]
       }
     },
+    "/api/deals/list/org": {
+      "get": {
+        "tags": [
+          "deals"
+        ],
+        "operationId": "list_deal_by_org",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The number of records to return",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "The UUID of the record to start from",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          },
+          {
+            "name": "Organization",
+            "in": "header",
+            "description": "The organization id to use for the request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of deals",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListDealByOrgRespBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Service error relating to authentication status of the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespPayload"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": [
+              "readonly"
+            ]
+          }
+        ]
+      }
+    },
     "/api/deals/{deal_id}": {
       "get": {
         "tags": [
@@ -986,6 +1124,264 @@
         "responses": {
           "204": {
             "description": "No content response indicating that the deal was successfully deleted"
+          },
+          "401": {
+            "description": "Service error relating to authentication status of the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespPayload"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": [
+              "readonly"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/deals/{deal_id}/{resource_type}": {
+      "get": {
+        "tags": [
+          "deals"
+        ],
+        "operationId": "list_deal_resource",
+        "parameters": [
+          {
+            "name": "deal_id",
+            "in": "path",
+            "description": "The deal id to use for the request",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PrefixedUuid"
+            }
+          },
+          {
+            "name": "resource_type",
+            "in": "path",
+            "description": "The resource type to use for the request",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/DealResType"
+            }
+          },
+          {
+            "name": "Organization",
+            "in": "header",
+            "description": "The organization id to use for the request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "The number of records to return",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64",
+              "nullable": true
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "The UUID of the record to start from",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of objects of resource_type",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DealResourceListWithPagination"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Service error relating to the request payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespPayload"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Service error relating to authentication status of the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespPayload"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": [
+              "readonly"
+            ]
+          }
+        ]
+      }
+    },
+    "/api/deals/{deal_id}/{resource_type}/{resource_id}": {
+      "post": {
+        "tags": [
+          "deals"
+        ],
+        "operationId": "create_deal_resource",
+        "parameters": [
+          {
+            "name": "deal_id",
+            "in": "path",
+            "description": "The deal id to use for the request",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PrefixedUuid"
+            }
+          },
+          {
+            "name": "resource_type",
+            "in": "path",
+            "description": "The resource type to use for the request",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/DealResType"
+            }
+          },
+          {
+            "name": "resource_id",
+            "in": "path",
+            "description": "The resource id to use for the request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Organization",
+            "in": "header",
+            "description": "The organization id to use for the request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Object representing the renamed relationship",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DealResource"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Service error relating to the request payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespPayload"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Service error relating to authentication status of the user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespPayload"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKey": [
+              "readonly"
+            ]
+          }
+        ]
+      },
+      "delete": {
+        "tags": [
+          "deals"
+        ],
+        "operationId": "delete_deal_resource",
+        "parameters": [
+          {
+            "name": "deal_id",
+            "in": "path",
+            "description": "The deal id to use for the request",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/PrefixedUuid"
+            }
+          },
+          {
+            "name": "resource_type",
+            "in": "path",
+            "description": "The resource type to use for the request",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/DealResType"
+            }
+          },
+          {
+            "name": "resource_id",
+            "in": "path",
+            "description": "The resource id to use for the request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "Organization",
+            "in": "header",
+            "description": "The organization id to use for the request",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No content response indicating that the deal resource was successfully deleted"
+          },
+          "400": {
+            "description": "Service error relating to the request payload",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorRespPayload"
+                }
+              }
+            }
           },
           "401": {
             "description": "Service error relating to authentication status of the user",
@@ -2747,20 +3143,21 @@
             "name": "limit",
             "in": "query",
             "description": "The number of records to return",
-            "required": true,
+            "required": false,
             "schema": {
               "type": "integer",
-              "format": "int64"
+              "format": "int64",
+              "nullable": true
             }
           },
           {
             "name": "offset",
             "in": "query",
             "description": "The number of records to skip",
-            "required": true,
+            "required": false,
             "schema": {
-              "type": "integer",
-              "format": "int64"
+              "type": "string",
+              "nullable": true
             }
           }
         ],
@@ -3046,6 +3443,25 @@
           "updated_at": "2021-01-01T00:00:00"
         }
       },
+      "ContactList": {
+        "type": "object",
+        "required": [
+          "contacts",
+          "total"
+        ],
+        "properties": {
+          "contacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Contact"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "CreateApiKeyReqPayload": {
         "type": "object",
         "required": [
@@ -3238,6 +3654,97 @@
           "updated_at": "2021-01-01T00:00:00"
         }
       },
+      "DealContact": {
+        "type": "object",
+        "required": [
+          "id",
+          "deal_id",
+          "contact_id",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "contact_id": {
+            "$ref": "#/components/schemas/PrefixedUuid"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deal_id": {
+            "$ref": "#/components/schemas/PrefixedUuid"
+          },
+          "id": {
+            "$ref": "#/components/schemas/PrefixedUuid"
+          },
+          "updated_at": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "example": {
+          "contact_id": "contact-c7c7c7c7-c7c7-c7c7-c7c7-c7c7c7c7c7c7",
+          "created_at": "2021-01-01T00:00:00",
+          "deal_id": "deal-b8b8b8b8-b8b8-b8b8-b8b8-b8b8b8b8b8b8",
+          "id": "dealcontact-b8b8b8b8-b8b8-b8b8-b8b8-b8b8b8b8b8b8",
+          "updated_at": "2021-01-01T00:00:00"
+        }
+      },
+      "DealResType": {
+        "type": "string",
+        "enum": [
+          "Contact"
+        ]
+      },
+      "DealResource": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "Contact"
+            ],
+            "properties": {
+              "Contact": {
+                "$ref": "#/components/schemas/DealContact"
+              }
+            }
+          }
+        ]
+      },
+      "DealResourceList": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "Contact"
+            ],
+            "properties": {
+              "Contact": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Contact"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "DealResourceListWithPagination": {
+        "type": "object",
+        "required": [
+          "data",
+          "total"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/DealResourceList"
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "Email": {
         "type": "object",
         "required": [
@@ -3295,8 +3802,7 @@
             "nullable": true
           },
           "offset": {
-            "type": "integer",
-            "format": "int64",
+            "type": "string",
             "nullable": true
           }
         }
@@ -3417,6 +3923,53 @@
           "link": "https://trieve.ai",
           "org_id": "org-b8b8b8b8-b8b8-b8b8-b8b8-b8b8b8b8b8b8",
           "updated_at": "2021-01-01T00:00:00"
+        }
+      },
+      "ListContactsQuery": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "offset": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ListDealByOrgRespBody": {
+        "type": "object",
+        "required": [
+          "deals",
+          "total"
+        ],
+        "properties": {
+          "deals": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Deal"
+            }
+          },
+          "total": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ListDealResourceQuery": {
+        "type": "object",
+        "properties": {
+          "limit": {
+            "type": "integer",
+            "format": "int64",
+            "nullable": true
+          },
+          "offset": {
+            "type": "string",
+            "nullable": true
+          }
         }
       },
       "Note": {
@@ -3656,9 +4209,9 @@
       "TaskResType": {
         "type": "string",
         "enum": [
-          "link",
-          "deal",
-          "user"
+          "Link",
+          "Deal",
+          "User"
         ]
       },
       "TaskResource": {
@@ -3666,10 +4219,10 @@
           {
             "type": "object",
             "required": [
-              "link"
+              "Link"
             ],
             "properties": {
-              "link": {
+              "Link": {
                 "$ref": "#/components/schemas/TaskLink"
               }
             }
@@ -3677,10 +4230,10 @@
           {
             "type": "object",
             "required": [
-              "deal"
+              "Deal"
             ],
             "properties": {
-              "deal": {
+              "Deal": {
                 "$ref": "#/components/schemas/TaskDeal"
               }
             }
@@ -3688,10 +4241,10 @@
           {
             "type": "object",
             "required": [
-              "user"
+              "User"
             ],
             "properties": {
-              "user": {
+              "User": {
                 "$ref": "#/components/schemas/TaskUser"
               }
             }
@@ -3703,10 +4256,10 @@
           {
             "type": "object",
             "required": [
-              "link"
+              "Link"
             ],
             "properties": {
-              "link": {
+              "Link": {
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/Link"
@@ -3717,10 +4270,10 @@
           {
             "type": "object",
             "required": [
-              "deal"
+              "Deal"
             ],
             "properties": {
-              "deal": {
+              "Deal": {
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/Deal"
@@ -3731,10 +4284,10 @@
           {
             "type": "object",
             "required": [
-              "user"
+              "User"
             ],
             "properties": {
-              "user": {
+              "User": {
                 "type": "array",
                 "items": {
                   "$ref": "#/components/schemas/User"

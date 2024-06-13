@@ -56,7 +56,7 @@ pub async fn update_link_query(
     Ok(updated_link)
 }
 
-pub async fn get_link_by_id(
+pub async fn get_link_by_id_query(
     link_id: PrefixedUuid<LinkPrefix>,
     pg_pool: web::Data<PgPool>,
 ) -> Result<Link, ServiceError> {
@@ -70,17 +70,17 @@ pub async fn get_link_by_id(
     Ok(link)
 }
 
-pub async fn list_links_by_task_id(
+pub async fn list_links_by_task_id_query(
     task_id: PrefixedUuid<TaskPrefix>,
     pg_pool: web::Data<PgPool>,
-    offset: Option<i64>,
+    offset: Option<PrefixedUuid<LinkPrefix>>,
     limit: Option<i64>,
 ) -> Result<(Vec<Link>, i64), ServiceError> {
     use crate::data::schema::links::dsl as links_columns;
     use crate::data::schema::tasks::dsl as tasks_columns;
     let mut conn = pg_pool.get().await.unwrap();
     let limit = limit.unwrap_or(10);
-    let offset = offset.unwrap_or(0);
+    let offset = offset.unwrap_or(PrefixedUuid::zero_id(LinkPrefix));
     let task = tasks_columns::tasks
         .filter(tasks_columns::id.eq(task_id))
         .first::<Task>(&mut conn)
@@ -89,8 +89,9 @@ pub async fn list_links_by_task_id(
     let links = TaskLink::belonging_to(&task)
         .inner_join(links_columns::links)
         .select(Link::as_select())
+        .filter(links_columns::id.gt(offset))
+        .order((links_columns::updated_at, links_columns::id))
         .limit(limit)
-        .offset(offset)
         .load::<Link>(&mut conn)
         .await
         .map_err(|_| ServiceError::InternalServerError("Error fetching links".to_string()))?;

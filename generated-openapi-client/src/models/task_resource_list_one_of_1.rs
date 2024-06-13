@@ -12,7 +12,7 @@ use crate::models;
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct TaskResourceListOneOf1 {
-    #[serde(rename = "deal")]
+    #[serde(rename = "Deal")]
     pub deal: Vec<models::Deal>,
 }
 

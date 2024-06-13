@@ -15,7 +15,7 @@ pub struct GetTaskResourceQuery {
     #[serde(rename = "limit", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub limit: Option<Option<i64>>,
     #[serde(rename = "offset", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
-    pub offset: Option<Option<i64>>,
+    pub offset: Option<Option<String>>,
 }
 
 impl GetTaskResourceQuery {
